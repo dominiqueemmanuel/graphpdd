@@ -13,9 +13,9 @@ graphpdd(data, type_general, lib_var, weight = NULL, title = "")
 
 - S'il s'agit d'une \bold{analyse monovariée} et que le type général est \bold{Quantitatif}.  : le nombre de lignes de \code{data} est égal au nombre d'observations de la population à analyser et le nombre de colonne \code{data} vaut 1.
 
-- S'il s'agit d'une \bold{analyse bivariée} et que les deux types généraux sont \bold{Qualitatif}, \bold{Echelle sémantique} ou \bold{Echelle sémantique inversée} : le nombre de lignes de \code{data} est égal au nombre de modalités de la première variable à analyser et le nombre de colonne \code{data} au nombre de modalités de la seconde variable à analyser. (NB : dans ce cas \code{rownames(data)} doit contenir les noms des modalités de la première variable et \code{colnames(data)} ceux de la seconde variable).
+- S'il s'agit d'une \bold{analyse bivariée} et que les deux types généraux sont \bold{Qualitatif}, \bold{Echelle sémantique} ou \bold{Echelle sémantique inversée} : le nombre de lignes de \code{data} est égal au nombre de modalités de la première variable à analyser et le nombre de colonne de \code{data} au nombre de modalités de la seconde variable à analyser. (NB : dans ce cas \code{rownames(data)} doit contenir les noms des modalités de la première variable et \code{colnames(data)} ceux de la seconde variable).
 
-- S'il s'agit d'une \bold{analyse bivariée} et que les deux types généraux sont \bold{Quantitatif} : le nombre de lignes de \code{data} est égal au nombre d'observation de la population à analyser et le nombre de colonne \code{data} vaut 2.
+- S'il s'agit d'une \bold{analyse bivariée} et que les deux types généraux sont \bold{Quantitatif} : le nombre de lignes de \code{data} est égal au nombre d'observation de la population à analyser et le nombre de colonnes \code{data} vaut 2.
 
 - S'il s'agit d'une \bold{analyse bivariée} et le premier type général est \bold{Quantitatif} et le second \bold{Qualitatif}, \bold{Echelle sémantique} ou \bold{Echelle sémantique inversée} : le nombre de lignes de \code{data} est égal au nombre d'observations de la population à analyser et le nombre de colonne \code{data} vaut 2 ; la première colonne correspondant aux données quantitatives, et la seconde aux données qualitatives (ou sémantiques).
 
@@ -25,7 +25,7 @@ graphpdd(data, type_general, lib_var, weight = NULL, title = "")
 
 \item{lib_var}{un vecteur de une ou deux chaines de caractères indiquant le ou les libellés de la (des) variable(s) à représenter.}
 
-\item{weight}{\code{NULL} ou un vecteur de poids de longueur égale au nombre de modalités (utile que si au moins une des variables à analyser est \bold{Quantitatif} et que l'analyse est pondérée).}
+\item{weight}{\code{NULL} ou un vecteur de poids de longueur égale au nombre d'observation totale (utile que si au moins une des variables à analyser est \bold{Quantitatif} et que l'analyse est pondérée).}
 
 \item{title}{une chaine de caractère représentant le titre de l'analyse.}
 }
