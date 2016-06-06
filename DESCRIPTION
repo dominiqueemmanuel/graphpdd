@@ -1,6 +1,6 @@
 Package: graphpdd
 Title: Permet de produire des graphiques pour le menu PDD.
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: person("Dominique", "Emmanuel", email = "dominique_emmanuel@hotmail.com", role = c("aut", "cre"))
 Description: Permet de produire des graphiques pour le menu PDD.
 Depends:
@@ -8,5 +8,5 @@ Depends:
 Imports: ggplot2, scales, ggthemes, dplyr, stringr, reshape2, RColorBrewer
 License: GPL-3
 LazyData: true
-RoxygenNote: 5.0.1.9001
+RoxygenNote: 5.0.1.9000
 Encoding: UTF-8
