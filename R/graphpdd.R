@@ -17,9 +17,9 @@
 
 
 #' @param type_general un vecteur de une ou deux chaines de caractères parmis \code{c("Quantitatif","Qualitatif","Echelle sémantique","Echelle sémantique inversée")}.
-#' @param is_mono est un booléen indiquant s'il s'agit d'une (ou plusieurs) analyse(s) monovariées (\code{TRUE}) ou d'une (ou plusieurs) analyse(s) bivariée(s) (\code{FALSE}).
+#' @param is_mono est un booléen indiquant s'il s'agit d'une (ou plusieurs) analyse(s) monovariées (\code{TRUE}) ou d'une analyse bivariée (\code{FALSE}).
 #' @param weight \code{NULL} ou un vecteur de poids de longueur égale au nombre d'observation totale (utile que si au moins une des variables à analyser est \bold{Quantitatif} et que l'analyse est pondérée).
-#' @param is_heatmap est un booléen indiquant, pour une annlyse bivariée \bold{Qualitatif} X \bold{Qualitatif} (ou échelles sémantiques), si le graphique à produire doit être un heatmap (par défaut \code{is_heatmap = FALSE}). Si un heatmap est demandé, le heatmap sera calculé sur les indices en base 100 (ces indices seront calculés automatiquement).
+#' @param is_heatmap est un booléen indiquant, pour une annlyse bivariée \bold{Qualitatif} X \bold{Qualitatif} (ou avec \bold{Echelle sémantique} ou \bold{Echelle sémantique inversée}), si le graphique à produire doit être un heatmap (par défaut \code{is_heatmap = FALSE}). Si un heatmap est demandé, le heatmap sera calculé sur les indices en base 100 (ces indices seront calculés automatiquement).
 #' @param title une chaine de caractère représentant le titre de l'analyse.
 
 #' @export graphpdd
