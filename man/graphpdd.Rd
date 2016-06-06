@@ -4,12 +4,13 @@
 \alias{graphpdd}
 \title{Une fonction permettant de produire des graphiques pour le menu PDD.}
 \usage{
-graphpdd(data, type_general, lib_var, weight = NULL, title = "")
+graphpdd(data, type_general, is_mono, lib_var, weight = NULL,
+  is_heatmap = FALSE, title = "")
 }
 \arguments{
 \item{data}{une data frame.
 
-- S'il s'agit d'une \bold{analyse monovariée} et que le type général est \bold{Qualitatif}, \bold{Echelle sémantique} ou \bold{Echelle sémantique inversée} : le nombre de lignes de \code{data} est égal au nombre de modalités de la variable à analyser et le nombre de colonne de \code{data} vaut 1. (NB : dans ce cas \code{rownames(data)} doit contenir les noms de modalités).
+- S'il s'agit d'une \bold{analyse monovariée} et que le type général est \bold{Qualitatif}, \bold{Echelle sémantique} ou \bold{Echelle sémantique inversée} : le nombre de lignes de \code{data} est égal au nombre de modalités de la variable à analyser et le nombre de colonne de \code{data} est égale au nombre de variables à représenter. (NB : dans ce cas \code{rownames(data)} doit contenir les noms de modalités, ces modalités étant les mêmes ou non pour toutes les variables).
 
 - S'il s'agit d'une \bold{analyse monovariée} et que le type général est \bold{Quantitatif}.  : le nombre de lignes de \code{data} est égal au nombre d'observations de la population à analyser et le nombre de colonne \code{data} vaut 1.
 
@@ -23,9 +24,11 @@ graphpdd(data, type_general, lib_var, weight = NULL, title = "")
 
 \item{type_general}{un vecteur de une ou deux chaines de caractères parmis \code{c("Quantitatif","Qualitatif","Echelle sémantique","Echelle sémantique inversée")}.}
 
-\item{lib_var}{un vecteur de une ou deux chaines de caractères indiquant le ou les libellés de la (des) variable(s) à représenter.}
+\item{is_mono}{est un booléen indiquant s'il s'agit d'une (ou plusieurs) analyse(s) monovariées (\code{TRUE}) ou d'une (ou plusieurs) analyse(s) bivariée(s) (\code{FALSE}).}
 
 \item{weight}{\code{NULL} ou un vecteur de poids de longueur égale au nombre d'observation totale (utile que si au moins une des variables à analyser est \bold{Quantitatif} et que l'analyse est pondérée).}
+
+\item{is_heatmap}{est un booléen indiquant, pour une annlyse bivariée \bold{Qualitatif} X \bold{Qualitatif} (ou échelles sémantiques), si le graphique à produire doit être un heatmap (par défaut \code{is_heatmap = FALSE}). Si un heatmap est demandé, le heatmap sera calculé sur les indices en base 100 (ces indices seront calculés automatiquement).}
 
 \item{title}{une chaine de caractère représentant le titre de l'analyse.}
 }
@@ -34,17 +37,31 @@ Les analyses dépendent du fait qu'il y ait une ou deux variables à analyser ai
 }
 \examples{
 ######################################
-# Exemple mono qualitatif
+# Exemple 1 : mono qualitatif (une seule variable)
 ######################################
 data<-data.frame(c(10000,2000,888))
 rownames(data)<-c("Un premier nom de modalité","Un deuxième nom de modalité","Un troisième nom de modalité")
 p <- graphpdd(data = data
               ,lib_var = "Un libellé de variable"
               ,type_general = "Qualitatif"
+              ,is_mono = TRUE
               ,title = "Titre du graphique")
 print(p)
+
 ######################################
-# Exemple mono quantitatif
+# Exemple 2 : mono qualitatif (3 variables)
+######################################
+data<-data.frame(Var1=c(1000,2000,888,0),Var2=c(0,0,500,1000),Var3=c(250,350,100,0))
+rownames(data)<-c("Un premier nom de modalité","Un deuxième nom de modalité","Un troisième nom de modalité","Un quatrième nom de modalité")
+p <- graphpdd(data = data
+              ,lib_var = c("Libellé de variable 1","Libellé de la variable 2","Libellé très très très très très long de la variable 3")
+              ,type_general = c("Qualitatif","Qualitatif","Qualitatif")
+              ,is_mono = TRUE
+              ,title = "Titre du graphique")
+print(p)
+
+######################################
+# Exemple 3 : mono quantitatif
 ######################################
 set.seed(123)
 x<-runif(1000)
@@ -52,11 +69,42 @@ data<-data.frame(x=rnorm(n=1000,mean = 0,sd=1)*(x>0.5)+(x<=0.5)*rnorm(n=1000,mea
 p <- graphpdd(data = data
               ,lib_var = "Un libellé de variable"
               ,type_general = "Quantitatif"
+              ,is_mono=TRUE
               ,title = "Titre du graphique")
 print(p)
 
 ######################################
-# Exemple bivarié quali x quali
+# Exemple 4 : mono quantitatif  (3 variables)
+######################################
+set.seed(123)
+x<-runif(1000)
+data<-data.frame(x=rnorm(n=1000,mean = 0,sd=1)*(x>0.5)+(x<=0.5)*rnorm(n=1000,mean=5,sd=2))
+data$y <- rnorm(n=1000,mean = 100,sd=10)*(x>0.5)+(x<=0.5)*rnorm(n=1000,mean=5,sd=2)
+data$z<-200*data$x+1000
+p <- graphpdd(data = data
+              ,lib_var = paste0("Un libellé de variable ",seq(3))
+              ,type_general = rep("Quantitatif",3)
+              ,is_mono=TRUE
+              ,title = "Titre du graphique")
+print(p)
+
+######################################
+# Exemple 5 : mono quantitatif avec un poids
+######################################
+set.seed(123)
+x<-runif(1000)
+data<-data.frame(x=rnorm(n=1000,mean = 0,sd=1)*(x>0.5)+(x<=0.5)*rnorm(n=1000,mean=5,sd=2))
+w<-runif(nrow(data))
+p <- graphpdd(data = data
+              ,lib_var = "Un libellé de variable"
+              ,type_general = "Quantitatif"
+              ,weight = w
+              ,is_mono=TRUE
+              ,title = "Titre du graphique PONDERE")
+print(p)
+
+######################################
+# Exemple 6 : bivarié quali x quali (barres normalisées sur une des deux variables)
 ######################################
 set.seed(123)
 a<-paste0("Le libellé de la modalité (var1) numéro ",seq(7))
@@ -71,18 +119,52 @@ title="Un titre"
 p <- graphpdd(data = data
               ,lib_var = c("Une première variable avec un libellé super long","Une seconde variable")
               ,type_general = c("Qualitatif","Qualitatif")
+              ,is_mono = FALSE
               ,title = "Titre du graphique")
 print(p)
+
+######################################
+# Exemple 7 : bivarié quali x sémantiques (barres normalisées sur une des deux variables)
+######################################
+set.seed(123)
+a<-paste0("Le libellé de la modalité (var1) numéro ",seq(7))
+b<-paste0("Le libellé de la modalité (var2) numéro ",seq(9))
+data<-reshape2::dcast(data.frame(x=sample(a,1000,replace=TRUE),y=sample(b,1000,replace=TRUE)),x~y)
+rownames(data)<-data[,1]
+data<-data[,-1]
+lib_var<-
+  type_general<-c("Qualitatif","Qualitatif")
+title="Un titre"
 
 p <- graphpdd(data = data
               ,lib_var = c("Une première variable avec un libellé super long","Une seconde variable")
               ,type_general = c("Qualitatif","Echelle sémantique")
+              ,is_mono = FALSE
               ,title = "Titre du graphique")
 print(p)
 
+######################################
+# Exemple 8 : bivarié quali x quali (heatmap)
+######################################
+#' set.seed(123)
+a<-paste0("Le libellé de la modalité (var1) numéro ",seq(7))
+b<-paste0("Le libellé de la modalité (var2) numéro ",seq(9))
+data<-reshape2::dcast(data.frame(x=sample(a,1000,replace=TRUE),y=sample(b,1000,replace=TRUE)),x~y)
+rownames(data)<-data[,1]
+data<-data[,-1]
+lib_var<-
+  type_general<-c("Qualitatif","Qualitatif")
+title="Un titre"
+p <- graphpdd(data = data
+              ,lib_var = c("Une première variable avec un libellé super long","Une seconde variable")
+              ,type_general = c("Qualitatif","Qualitatif")
+              ,is_mono = FALSE
+              ,is_heatmap = TRUE
+              ,title = "Titre du graphique")
+print(p)
 
 ######################################
-# Exemple  bivarié quanti x quanti
+# Exemple 9 : bivarié quanti x quanti
 ######################################
 set.seed(123)
 x<-runif(10000)
@@ -92,19 +174,29 @@ data<-data.frame(x=x,y=y)
 p <- graphpdd(data = data
               ,lib_var = c("Une première variable avec un libellé super long","Une seconde variable")
               ,type_general = c("Quantitatif","Quantitatif")
+              ,is_mono = FALSE
               ,title = "Titre du graphique")
 print(p)
-# avec un poids
-w<-log(1+abs(data[,1]))*(1+runif(10000)/5)
+
+######################################
+# Exemple 10 : bivarié quanti x quanti avec un poids
+######################################
+set.seed(123)
+x<-runif(10000)
+x<-rnorm(n=10000,mean = 0,sd=1)*(x>0.5)+(x<=0.5)*rnorm(n=10000,mean=5,sd=2)
+y<-x+0.25*x^2+2+rnorm(n=10000,mean=0,sd=3)
+data<-data.frame(x=x,y=y)
+w<-ifelse(data[,1]<=1,0.1,10)
 p <- graphpdd(data = data
               ,lib_var = c("Une première variable avec un libellé super long","Une seconde variable")
               ,type_general = c("Quantitatif","Quantitatif")
+              ,is_mono = FALSE
               , weight = w
               ,title = "Titre du graphique (pondéré)")
 print(p)
 
 ######################################
-# Exemple  bivarié quanti x quali
+# Exemple 11 : bivarié quanti x quali
 ######################################
 set.seed(123)
 x<-runif(10000)
@@ -116,15 +208,34 @@ data<-data.frame(x=x,y=y)
 p <- graphpdd(data = data
               ,lib_var = c("Une première variable avec un libellé super long","Une seconde variable")
               ,type_general = c("Quantitatif","Qualitatif")
+              ,is_mono = FALSE
+              ,title = "Titre du graphique")
+print(p)
+
+######################################
+# Exemple 11 : bivarié quanti x quali
+######################################
+set.seed(123)
+x<-runif(10000)
+x<-rnorm(n=10000,mean = 0,sd=1)*(x>0.5)+(x<=0.5)*rnorm(n=10000,mean=5,sd=2)
+b<-paste0("Le libellé de la modalité (var2) numéro ",seq(6))
+y<-sample(b,10000,replace=TRUE)
+data<-data.frame(x=x,y=y)
+set.seed(123)
+w<-runif(nrow(data))
+p <- graphpdd(data = data
+              ,lib_var = c("Une première variable avec un libellé super long","Une seconde variable")
+              ,type_general = c("Quantitatif","Qualitatif")
+              ,is_mono = FALSE
+              ,weight = w
               ,title = "Titre du graphique")
 print(p)
 # On peut inverser les données (quanti <-> quali), cela ne change rien
 p <- graphpdd(data = data[,2:1]
               ,lib_var = c("Une première variable avec un libellé super long","Une seconde variable")
               ,type_general = c("Qualitatif","Quantitatif")
+              ,is_mono = FALSE
               ,title = "Titre du graphique (2)")
 print(p)
-
-
 }
 
