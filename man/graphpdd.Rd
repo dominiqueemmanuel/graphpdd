@@ -5,7 +5,7 @@
 \title{Une fonction permettant de produire des graphiques pour le menu PDD.}
 \usage{
 graphpdd(data, type_general, is_mono = TRUE, lib_var, weight = NULL,
-  is_heatmap = FALSE, title = "")
+  is_heatmap = FALSE, is_indice = FALSE, title = "")
 }
 \arguments{
 \item{data}{une data frame.
@@ -29,6 +29,8 @@ graphpdd(data, type_general, is_mono = TRUE, lib_var, weight = NULL,
 \item{weight}{\code{NULL} ou un vecteur de poids de longueur égale au nombre d'observation totale (utile que si au moins une des variables à analyser est \bold{Quantitatif} et que l'analyse est pondérée).}
 
 \item{is_heatmap}{est un booléen indiquant, pour une annlyse bivariée \bold{Qualitatif} X \bold{Qualitatif} (ou avec \bold{Echelle sémantique} ou \bold{Echelle sémantique inversée}), si le graphique à produire doit être un heatmap (par défaut \code{is_heatmap = FALSE}). Si un heatmap est demandé, le heatmap sera calculé sur les indices en base 100 (ces indices seront calculés automatiquement).}
+
+\item{is_indice}{est un booléen indiquant, si pour une analyse en heatmap les données sont déjà en indices en base 100 (par défaut non, c'est à dire que les données sont des comptages par défaut et non des indices).}
 
 \item{title}{une chaine de caractère représentant le titre de l'analyse.}
 }

@@ -20,6 +20,7 @@
 #' @param is_mono est un booléen indiquant s'il s'agit d'une (ou plusieurs) analyse(s) monovariées (\code{TRUE}) ou d'une analyse bivariée (\code{FALSE}).
 #' @param weight \code{NULL} ou un vecteur de poids de longueur égale au nombre d'observation totale (utile que si au moins une des variables à analyser est \bold{Quantitatif} et que l'analyse est pondérée).
 #' @param is_heatmap est un booléen indiquant, pour une annlyse bivariée \bold{Qualitatif} X \bold{Qualitatif} (ou avec \bold{Echelle sémantique} ou \bold{Echelle sémantique inversée}), si le graphique à produire doit être un heatmap (par défaut \code{is_heatmap = FALSE}). Si un heatmap est demandé, le heatmap sera calculé sur les indices en base 100 (ces indices seront calculés automatiquement).
+#' @param is_indice est un booléen indiquant, si pour une analyse en heatmap les données sont déjà en indices en base 100 (par défaut non, c'est à dire que les données sont des comptages par défaut et non des indices).
 #' @param title une chaine de caractère représentant le titre de l'analyse.
 
 #' @export graphpdd
@@ -228,7 +229,7 @@
 
 
 
-graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, is_heatmap = FALSE, title = "") {
+graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, is_heatmap = FALSE, is_indice = FALSE, title = "") {
   out <- NULL
   if(is_mono){
     if(all(type_general %in% c("Qualitatif","Echelle sémantique","Echelle sémantique inversée"))){
@@ -239,7 +240,7 @@ graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, 
 
   } else if(!is_mono & length(type_general)==2){
     if(all(type_general %in%  c("Qualitatif","Echelle sémantique","Echelle sémantique inversée"))){
-      out <- graphpdd_bi_quali_quali(data=data, lib_var=lib_var, type_general=type_general, is_heatmap = is_heatmap, title = title)
+      out <- graphpdd_bi_quali_quali(data=data, lib_var=lib_var, type_general=type_general, is_heatmap = is_heatmap, is_indice = is_indice, title = title)
     } else if(all(type_general %in%  c("Quantitatif"))){
       out <- graphpdd_bi_quanti(data = data, lib_var = lib_var, title = title, w = weight)
     } else if(!all(type_general %in%  c("Quantitatif")) & "Quantitatif" %in% type_general){
@@ -294,7 +295,7 @@ graphpdd_mono_quali <- function(data, lib_var, title = "", ...){
   return(p)
 }
 
-graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_heatmap = FALSE, ...){
+graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_heatmap = FALSE, is_indice = FALSE, ...){
   library(ggplot2)
   library(ggthemes)
   library(scales)
@@ -343,14 +344,18 @@ graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_
     head(x)
     x$xxxr_var1<-factor(x$xxxr_var1,levels=rownames(data))
     x$xxxr_var2<-factor(x$xxxr_var2,levels=colnames(data))
-    head(x)
-    y1<-x%>%group_by(xxxr_var1)%>%summarise(s1=mean(value))%>%as.data.frame
-    y2<-x%>%group_by(xxxr_var2)%>%summarise(s2=mean(value))%>%as.data.frame
-    s<-mean(x$value)
+
+
+    if(!is_indice){
+      y1<-x%>%group_by(xxxr_var1)%>%summarise(s1=mean(value))%>%as.data.frame
+      y2<-x%>%group_by(xxxr_var2)%>%summarise(s2=mean(value))%>%as.data.frame
+      s<-mean(x$value)
     x<-x%>%left_join(y1,by="xxxr_var1")%>%
       left_join(y2,by="xxxr_var2")%>%
       mutate(`Indice\n(base 100)`=100*value/(s1*s2)*s)%>%as.data.frame%>%select(-s1,-s2)
-
+    } else {
+      x<-x%>%mutate(`Indice\n(base 100)`=value)
+    }
     .e <- environment()
     p<-ggplot(x, aes(xxxr_var1, xxxr_var2)) +
       geom_raster(aes(fill=`Indice\n(base 100)`,color="white"), interpolate = FALSE,alpha=0.85) +
