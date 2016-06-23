@@ -4,7 +4,7 @@
 \alias{graphpdd}
 \title{Une fonction permettant de produire des graphiques pour le menu PDD.}
 \usage{
-graphpdd(data, type_general, is_mono, lib_var, weight = NULL,
+graphpdd(data, type_general, is_mono = TRUE, lib_var, weight = NULL,
   is_heatmap = FALSE, title = "")
 }
 \arguments{
