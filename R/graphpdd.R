@@ -228,7 +228,7 @@
 
 
 
-graphpdd <- function(data, type_general, is_mono,lib_var, weight = NULL, is_heatmap = FALSE, title = "") {
+graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, is_heatmap = FALSE, title = "") {
   out <- NULL
   if(is_mono){
     if(all(type_general %in% c("Qualitatif","Echelle sémantique","Echelle sémantique inversée"))){
