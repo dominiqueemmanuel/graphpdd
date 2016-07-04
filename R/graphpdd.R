@@ -22,6 +22,7 @@
 #' @param is_heatmap est un booléen indiquant, pour une annlyse bivariée \bold{Qualitatif} X \bold{Qualitatif} (ou avec \bold{Echelle sémantique} ou \bold{Echelle sémantique inversée}), si le graphique à produire doit être un heatmap (par défaut \code{is_heatmap = FALSE}). Si un heatmap est demandé, le heatmap sera calculé sur les indices en base 100 (ces indices seront calculés automatiquement).
 #' @param is_indice est un booléen indiquant, si pour une analyse en heatmap les données sont déjà en indices en base 100 (par défaut non, c'est à dire que les données sont des comptages par défaut et non des indices).
 #' @param title une chaine de caractère représentant le titre de l'analyse.
+#' @param transpose un boléan pour transposer les analyses de variables qualitatives monovariées de deux varibales ou plus, ou bivariées.
 
 #' @export graphpdd
 #' @examples
@@ -229,18 +230,18 @@
 
 
 
-graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, is_heatmap = FALSE, is_indice = FALSE, title = "") {
+graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, is_heatmap = FALSE, is_indice = FALSE, title = "", transpose = FALSE, nr1 = NULL, angle = NULL) {
   out <- NULL
   if(is_mono){
     if(all(type_general %in% c("Qualitatif","Echelle sémantique","Echelle sémantique inversée"))){
-      out <- graphpdd_mono_quali(data=data, lib_var=lib_var, title = title)
+      out <- graphpdd_mono_quali(data=data, lib_var=lib_var, title = title, transpose = transpose, nr1 = nr1, angle = angle)
     } else if(all(type_general=="Quantitatif")) {
       out <- graphpdd_mono_quanti(data=data, lib_var=lib_var,weight = weight, title = title)
     }
 
   } else if(!is_mono & length(type_general)==2){
     if(all(type_general %in%  c("Qualitatif","Echelle sémantique","Echelle sémantique inversée"))){
-      out <- graphpdd_bi_quali_quali(data=data, lib_var=lib_var, type_general=type_general, is_heatmap = is_heatmap, is_indice = is_indice, title = title)
+      out <- graphpdd_bi_quali_quali(data=data, lib_var=lib_var, type_general=type_general, is_heatmap = is_heatmap, is_indice = is_indice, title = title, transpose = transpose, nr1 = nr1, angle = angle)
     } else if(all(type_general %in%  c("Quantitatif"))){
       out <- graphpdd_bi_quanti(data = data, lib_var = lib_var, title = title, w = weight)
     } else if(!all(type_general %in%  c("Quantitatif")) & "Quantitatif" %in% type_general){
@@ -252,18 +253,41 @@ graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, 
 
 }
 
-graphpdd_mono_quali <- function(data, lib_var, title = "", ...){
+graphpdd_mono_quali <- function(data, lib_var, title = "", transpose = FALSE, nr1 = NULL, angle = NULL, ...){
   library(ggplot2)
   library(ggthemes)
   library(scales)
   library(stringr)
   library(reshape2)
-  lib_var <- str_wrap(lib_var,40)
+  for(k in seq(ncol(data))){
+    data[,k] <- as.numeric(as.character(data[,k]))
+    data[,k]<-ifelse(is.na(data[,k]),0,data[,k])
+  }
+
+  if(transpose){
+    data <- t(data)
+    rownames(data) <- lib_var
+    lib_var <- colnames(data)
+
+  }
+  lib_var <- str_wrap(lib_var,20)
   colnames(data)<-lib_var
-  title <- str_wrap(title,40)
-  rownames(data) <- str_wrap(rownames(data) ,20)
+  title <- str_wrap(title,20)
+  if(nrow(data)<=5){
+    if(is.null(nr1))nr1<-15
+    if(is.null(angle))angle<-0
+  } else if(nrow(data)>=25){
+    if(is.null(nr1))nr1<-35
+      if(is.null(angle))angle<-50
+  } else {
+    if(is.null(nr1)) nr1 <- round(15+1*(nrow(data)-5))
+    if(is.null(angle))angle <- round(0+2.5*(nrow(data)-5))
+
+    }
+
+  rownames(data) <- str_wrap(rownames(data) ,nr1)
   x <- data.frame(x=rownames(data),data,check.names = FALSE,stringsAsFactors = FALSE)
-  x <- melt(x,id.vars="x",variable.name = "Variable")
+  x <- melt(x,id.vars="x",variable.name ="Variable")
   x$x<-factor(x$x,levels=rownames(data))
   x$Variable<-factor(x$Variable,levels=lib_var)
 
@@ -280,22 +304,25 @@ graphpdd_mono_quali <- function(data, lib_var, title = "", ...){
     colourCount = length(lib_var)
     g0<-gdocs_pal()(min(20,colourCount))
     getPalette = colorRampPalette(g0)
-    pal<- scale_fill_manual(name="Variables",values = getPalette(colourCount),guide=guide_legend(reverse=FALSE))
+    pal<- scale_fill_manual(name= if(transpose) "Modalités" else "Variable",values = getPalette(colourCount),guide=guide_legend(reverse=FALSE))
 
     .e <- environment()
     p<-ggplot(data=x,aes(x=x,y=value,fill=Variable)) +
       geom_bar(stat = "identity",alpha=0.85, position=position_dodge()) +
       scale_y_continuous(labels = function(x,...)format(x, ..., big.mark = " ", scientific = FALSE, trim = TRUE))+
-      xlab("Modalités") +ggtitle(title)
-    p<- p+theme_pander()+pal
+      xlab( if(transpose) "Variable" else "Modalités") +ggtitle(title)
+    p<- p+theme_pander()+pal+ theme(legend.position="bottom")
   }
-
-
+p<-p+ylab("Fréquence")
+p<-p+theme(axis.text.x = element_text(angle = angle, hjust = 1))
   p$plot_env<-.e
   return(p)
 }
 
-graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_heatmap = FALSE, is_indice = FALSE, ...){
+graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_heatmap = FALSE, is_indice = FALSE, transpose = FALSE, nr1 = NULL, angle = NULL,...){
+  # save(file="dom",list=ls())
+  # load("dom")
+  # print("++")
   library(ggplot2)
   library(ggthemes)
   library(scales)
@@ -303,11 +330,40 @@ graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_
   library(reshape2)
   library(dplyr)
   library(RColorBrewer)
+  for(k in seq(ncol(data))){
+    data[,k] <- as.numeric(as.character(data[,k]))
+    data[,k]<-ifelse(is.na(data[,k]),0,data[,k])
+  }
+
+  if(transpose){
+    data <- t(data)
+    lib_var<-rev(lib_var)
+
+
+  }
+
+  # lib_var <- str_wrap(lib_var,20)
+  # colnames(data)<-lib_var
+  # title <- str_wrap(title,20)
+
+  if(ncol(data)<=5){
+    if(is.null(nr1))nr1<-15
+    if(is.null(angle))angle<-0
+  } else if(ncol(data)>=25){
+    if(is.null(nr1))nr1<-35
+    if(is.null(angle))angle<-50
+  } else {
+    if(is.null(nr1))nr1 <- round(15+1*(ncol(data)-5))
+    if(is.null(angle))angle <- round(0+2.5*(ncol(data)-5))
+
+  }
+
+
   lib_var[1] <- str_wrap(lib_var[1],40)
   lib_var[2] <- str_wrap(lib_var[2],15)
   title <- str_wrap(title,40)
   rownames(data) <- str_wrap(rownames(data) ,20)
-  colnames(data) <- str_wrap(colnames(data) ,15)
+  colnames(data) <- str_wrap(colnames(data) ,nr1)
 
   if(!is_heatmap){
     x <- data.frame(xxxr_var1=rownames(data),data,check.names = FALSE,stringsAsFactors = FALSE,row.names = NULL)
@@ -317,7 +373,7 @@ graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_
     y<-x%>%group_by(xxxr_var1)%>%summarise(s=sum(value))%>%as.data.frame
     x<-left_join(x,y,by="xxxr_var1")%>%mutate(value=value/s)%>%as.data.frame%>%select(-s)
 
-
+# print(head(x))
     colourCount = length(unique(x[,2]))
     # getPalette = colorRampPalette(brewer.pal(9, "Set1"))
     g0<-gdocs_pal()(min(20,colourCount))
@@ -336,7 +392,7 @@ graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_
       xlab(lib_var[1])+ylab("Répartition")+
       pal+
       ggtitle(title)
-    p<- p+theme_pander()
+    p<- p+theme_pander()+theme(axis.text.x = element_text(angle = angle, hjust = 1))
     p$plot_env<-.e
   } else {
     x <- data.frame(xxxr_var1=rownames(data),data,check.names = FALSE,stringsAsFactors = FALSE,row.names = NULL)
@@ -356,15 +412,16 @@ graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_
     } else {
       x<-x%>%mutate(`Indice\n(base 100)`=value)
     }
+    c<-tableau_div_gradient_pal(palette = "Red-Green", space = "Lab")(seq(0,1,length.out=21))
+    c<-c(c[1],"white",c[21])
     .e <- environment()
     p<-ggplot(x, aes(xxxr_var1, xxxr_var2)) +
       geom_raster(aes(fill=`Indice\n(base 100)`,color="white"), interpolate = FALSE,alpha=0.85) +
-      scale_fill_gradient2(low = (tableau_div_gradient_pal(palette = "Red-Green", space = "Lab")(seq(0,1,length.out=10)))[1]
-                           , high  = (tableau_div_gradient_pal(palette = "Red-Green", space = "Lab")(seq(0,1,length.out=10)))[10]
-                           ,mid="white",midpoint=100
+      scale_fill_gradientn(colours=c
+                           ,values=rescale(c(min(x$`Indice\n(base 100)`),100,max(x$`Indice\n(base 100)`)))
       )+   xlab(lib_var[1])+ylab(lib_var[2])+
       ggtitle(title)
-    p<- p+theme_pander()
+    p<- p+theme_pander()+theme(axis.text.x = element_text(angle = angle, hjust = 1))
     p$plot_env<-.e
 
 
@@ -373,6 +430,7 @@ graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_
 }
 
 graphpdd_mono_quanti <- function(data, lib_var, weight = NULL, title = "", ...){
+
   library(ggplot2)
   library(ggthemes)
   library(scales)
@@ -405,23 +463,30 @@ graphpdd_mono_quanti <- function(data, lib_var, weight = NULL, title = "", ...){
       mutate(
         bins =length(hist(value,plot=FALSE)$breaks)-1
         , center = mean(hist(value,plot=FALSE)$breaks[seq(min(2,length(hist(value,plot=FALSE)$breaks)))])
+        ,width = diff(range(value))/bins
       )
     colourCount = length(lib_var)
     g0<-gdocs_pal()(min(20,colourCount))
     getPalette = colorRampPalette(g0)
     pal<- scale_fill_manual(name="Variables",values = getPalette(colourCount),guide=guide_legend(reverse=FALSE))
 
-    .e <- environment()
-    p<-ggplot(data=x,aes(x=value,fill=Variable)) +
-      geom_histogram(aes(weight=weight_variable_, bins =  bins ,center=center)
-                     ,alpha=0.85,color="white",size=0.8)+
-      scale_y_continuous(labels = function(x,...)format(x, ..., big.mark = " ", scientific = FALSE, trim = TRUE))+
+
+    p<-ggplot(data=x,aes(x=value,fill=Variable))
+    for( t in sort(unique(x$Variable))){
+      xx<-subset(x,Variable==t)
+      a=xx$bins[1]
+      b=xx$center[1]
+      p<-p+geom_histogram(data=xx,aes(weight=weight_variable_),bins=a,center=b
+                          ,alpha=0.85,color="white",size=0.8)
+    }
+    p<-p+scale_y_continuous(labels = function(x,...)format(x, ..., big.mark = " ", scientific = FALSE, trim = TRUE))+
       scale_x_continuous(labels = function(x,...)format(x, ..., big.mark = " ", scientific = FALSE, trim = TRUE))+
       xlab("Valeurs")+ylab("Fréquence")+
       ggtitle(title)
     p<- p+theme_pander()+  facet_grid(Variable~., scales = "free")
     p <- p+ pal+ facet_wrap(~Variable, scales = "free",ncol=1)+guides(fill=FALSE)
-    p$plot_env<-.e
+    .e <- environment()
+     p$plot_env<-.e
   }
 
 

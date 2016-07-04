@@ -5,7 +5,8 @@
 \title{Une fonction permettant de produire des graphiques pour le menu PDD.}
 \usage{
 graphpdd(data, type_general, is_mono = TRUE, lib_var, weight = NULL,
-  is_heatmap = FALSE, is_indice = FALSE, title = "")
+  is_heatmap = FALSE, is_indice = FALSE, title = "", transpose = FALSE,
+  nr1 = NULL, angle = NULL)
 }
 \arguments{
 \item{data}{une data frame.
@@ -33,6 +34,8 @@ graphpdd(data, type_general, is_mono = TRUE, lib_var, weight = NULL,
 \item{is_indice}{est un booléen indiquant, si pour une analyse en heatmap les données sont déjà en indices en base 100 (par défaut non, c'est à dire que les données sont des comptages par défaut et non des indices).}
 
 \item{title}{une chaine de caractère représentant le titre de l'analyse.}
+
+\item{transpose}{un boléan pour transposer les analyses de variables qualitatives monovariées de deux varibales ou plus, ou bivariées.}
 }
 \description{
 Les analyses dépendent du fait qu'il y ait une ou deux variables à analyser ainsi que du type (général) de chacune des variables à analyser.
