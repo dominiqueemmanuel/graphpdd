@@ -232,6 +232,7 @@
 
 graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, is_heatmap = FALSE, is_indice = FALSE, title = "", transpose = FALSE, nr1 = NULL, angle = NULL) {
   out <- NULL
+  if(nrow(na.omit(data))==0)return(NULL)
   if(is_mono){
     if(all(type_general %in% c("Qualitatif","Echelle sémantique","Echelle sémantique inversée"))){
       out <- graphpdd_mono_quali(data=data, lib_var=lib_var, title = title, transpose = transpose, nr1 = nr1, angle = angle)
