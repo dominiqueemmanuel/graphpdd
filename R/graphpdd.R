@@ -231,7 +231,7 @@
 
 
 graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, is_heatmap = FALSE, is_indice = FALSE, title = "", transpose = FALSE, nr1 = NULL, angle = NULL) {
-  out <- NULL
+  out <- ggplot()+theme_pander()
 
   if(is_mono){
     if(all(type_general %in% c("Qualitatif","Echelle sémantique","Echelle sémantique inversée"))){
@@ -438,7 +438,7 @@ graphpdd_mono_quanti <- function(data, lib_var, weight = NULL, title = "", ...){
   library(stringr)
   library(reshape2)
   library(dplyr)
-  if(nrow(na.omit(data))==0)return(NULL)
+  if(nrow(na.omit(data))==0)return(ggplot()+theme_pander())
   lib_var <- str_wrap(lib_var,40)
   colnames(data)<-lib_var
   title <- str_wrap(title,40)
@@ -504,7 +504,7 @@ graphpdd_bi_quanti <- function(data, lib_var, title = "", w = NULL, ...){
   library(ggthemes)
   library(scales)
   library(stringr)
-  if(nrow(na.omit(data))==0)return(NULL)
+  if(nrow(na.omit(data))==0)return(ggplot()+theme_pander())
   lib_var <- str_wrap(lib_var,40)
   title <- str_wrap(title,40)
 
