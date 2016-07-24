@@ -255,7 +255,9 @@ graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, 
 }
 
 graphpdd_mono_quali <- function(data, lib_var, title = "", transpose = FALSE, nr1 = NULL, angle = NULL, ...){
-  library(ggplot2)
+# save(file="dome",list=ls())
+#   load("C:/Users/Dominique/Desktop/Stat_Regie/data/application_data/dome")
+    library(ggplot2)
   library(ggthemes)
   library(scales)
   library(stringr)
@@ -285,8 +287,14 @@ graphpdd_mono_quali <- function(data, lib_var, title = "", transpose = FALSE, nr
     if(is.null(angle))angle <- round(0+2.5*(nrow(data)-5))
 
     }
-
-  rownames(data) <- str_wrap(rownames(data) ,nr1)
+  e <- str_wrap(rownames(data) ,nr1)
+  ee<-sort(unique(e[duplicated(e)]))
+  if(length(ee)>0){
+    for(t in ee){
+    e[e==t]<-paste0(e[e==t]," (",seq(sum(e==t)),")")
+    }
+  }
+  rownames(data) <- e
   x <- data.frame(x=rownames(data),data,check.names = FALSE,stringsAsFactors = FALSE)
   x <- melt(x,id.vars="x",variable.name ="Variable")
   x$x<-factor(x$x,levels=rownames(data))
