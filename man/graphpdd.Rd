@@ -6,7 +6,7 @@
 \usage{
 graphpdd(data, type_general, is_mono = TRUE, lib_var, weight = NULL,
   is_heatmap = FALSE, is_indice = FALSE, title = "", transpose = FALSE,
-  nr1 = NULL, angle = NULL)
+  nr1 = NULL, nr2 = 20, angle = NULL)
 }
 \arguments{
 \item{data}{une data frame.

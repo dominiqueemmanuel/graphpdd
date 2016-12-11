@@ -230,7 +230,7 @@
 
 
 
-graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, is_heatmap = FALSE, is_indice = FALSE, title = "", transpose = FALSE, nr1 = NULL, angle = NULL) {
+graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, is_heatmap = FALSE, is_indice = FALSE, title = "", transpose = FALSE, nr1 = NULL, nr2 = 20, angle = NULL) {
   out <- ggplot()+theme_pander()
 
   if(is_mono){
@@ -242,7 +242,7 @@ graphpdd <- function(data, type_general, is_mono = TRUE,lib_var, weight = NULL, 
 
   } else if(!is_mono & length(type_general)==2){
     if(all(type_general %in%  c("Qualitatif","Echelle sémantique","Echelle sémantique inversée"))){
-      out <- graphpdd_bi_quali_quali(data=data, lib_var=lib_var, type_general=type_general, is_heatmap = is_heatmap, is_indice = is_indice, title = title, transpose = transpose, nr1 = nr1, angle = angle)
+      out <- graphpdd_bi_quali_quali(data=data, lib_var=lib_var, type_general=type_general, is_heatmap = is_heatmap, is_indice = is_indice, title = title, transpose = transpose, nr1 = nr1, nr2 = nr2, angle = angle)
     } else if(all(type_general %in%  c("Quantitatif"))){
       out <- graphpdd_bi_quanti(data = data, lib_var = lib_var, title = title, w = weight)
     } else if(!all(type_general %in%  c("Quantitatif")) & "Quantitatif" %in% type_general){
@@ -328,7 +328,7 @@ p<-p+theme(axis.text.x = element_text(angle = angle, hjust = 1))
   return(p)
 }
 
-graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_heatmap = FALSE, is_indice = FALSE, transpose = FALSE, nr1 = NULL, angle = NULL,...){
+graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_heatmap = FALSE, is_indice = FALSE, transpose = FALSE, nr1 = NULL, nr2 = 25, angle = NULL,...){
   # save(file="dom",list=ls())
   # load("dom")
   # print("++")
@@ -371,7 +371,7 @@ graphpdd_bi_quali_quali <- function(data, lib_var, type_general, title = "", is_
   lib_var[1] <- str_wrap(lib_var[1],40)
   lib_var[2] <- str_wrap(lib_var[2],15)
   title <- str_wrap(title,40)
-  rownames(data) <- str_wrap(rownames(data) ,20)
+  rownames(data) <- str_wrap(rownames(data) ,nr2)
   colnames(data) <- str_wrap(colnames(data) ,nr1)
 
   if(!is_heatmap){
